@@ -1,0 +1,60 @@
+use std::io;
+// Функция для получения следующей буквы алфавита
+fn next_char(c: char) -> char {
+    match c {
+        'z' => 'a',
+        'Z' => 'A',
+        _ => (c as u8 + 1) as char,
+    }
+}
+// Функция для добавления символов в строку, чтобы избежать трех одинаковых символов подряд
+fn make_valid_string(s: &str) -> String {
+    let mut result = String::new();
+    let mut count = 1;
+    for (i, c) in s.chars().enumerate() {
+        result.push(c);
+        if i < s.len() - 1 && c == s.chars().nth(i + 1).unwrap() {
+            count += 1;
+            if count == 3 {
+                result.push(next_char(c));
+                count = 1;
+            }
+        } else {
+            count = 1;
+        }
+    }
+    result
+}
+// Функция для подсчета минимального количества добавлений
+fn min_additions(s: &str) -> i32 {
+    let mut additions = 0;
+    let mut count = 1;
+    for (i, c) in s.chars().enumerate() {
+        if i > 0 && c == s.chars().nth(i - 1).unwrap() {
+            count += 1;
+            if count == 3 {
+                additions += 1;
+                count = 1;
+            }
+        } else {
+            count = 1;
+        }
+    }
+    additions
+}
+fn main() {
+    println!("Введите строку: ");
+    let mut input_str = String::new();
+    io::stdin().read_line(&mut input_str).expect("Ошибка чтения строки");
+    let input_str = input_str.trim().to_string();
+for c in input_str.chars() {
+        if !c.is_alphabetic() {
+            println!("Недопустимые символы");
+            return;
+        }
+    }
+    let additions = min_additions(&input_str);
+    let valid_str = make_valid_string(&input_str);
+    println!("Минимальное количество добавлений: {}", additions);
+    println!("Измененная строка: {}", valid_str);
+}
