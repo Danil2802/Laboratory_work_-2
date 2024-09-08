@@ -1,0 +1,116 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static Dictionary<char, string> morseMap = new Dictionary<char, string>()
+    {
+        {'A', ".-"}, {'B', "-..."}, {'C', "-.-."}, {'D', "-.."}, {'E', "."},
+        {'F', "..-."}, {'G', "--."}, {'H', "...."}, {'I', ".."}, {'J', ".---"},
+        {'K', "-.-"}, {'L', ".-.."}, {'M', "--"}, {'N', "-."}, {'O', "---"},
+        {'P', ".--."}, {'Q', "--.-"}, {'R', ".-."}, {'S', "..."}, {'T', "-"},
+        {'U', "..-"}, {'V', "...-"}, {'W', ".--"}, {'X', "-..-"}, {'Y', "-.--"},
+        {'Z', "--.."}
+    };
+
+    static string CharToMorse(char c)
+    {
+        c = Char.ToUpper(c);
+        if (morseMap.ContainsKey(c))
+        {
+            return morseMap[c];
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    static string PermToMorse(string perm)
+    {
+        string morsePerm = "";
+        foreach (char c in perm)
+        {
+            morsePerm += CharToMorse(c);
+        }
+        return morsePerm;
+    }
+
+    static List<string> GetPermutations(string str)
+    {
+        if (str.Length <= 1) return new List<string> { str };
+
+        var permutations = new List<string>();
+        for (int i = 0; i < str.Length; i++)
+        {
+            var subStr = str.Remove(i, 1);
+            foreach (var perm in GetPermutations(subStr))
+            {
+                permutations.Add(str[i] + perm);
+            }
+        }
+        return permutations;
+    }
+
+    static void Main()
+    {
+        Console.WriteLine("Введите строку: ");
+        string input = Console.ReadLine();
+
+        foreach (char c in input)
+        {
+            if (!Char.IsLetter(c) && !Char.IsWhiteSpace(c))
+            {
+                Console.WriteLine("Не балуетесь");
+                return;
+            }
+        }
+int spaceCount = input.Count(c => c == ' ');
+    if (spaceCount >= 100)
+    {
+        Console.WriteLine("Слишком много слов");
+        return;
+    }
+
+        string[] words = input.Split(' ');
+        List<List<string>> allPermutations = new List<List<string>>();
+
+        foreach (string word in words)
+        {
+            if (word.Length > 11)
+            {
+                Console.WriteLine("Слишком длинное слово: " + word);
+                return;
+            }
+            allPermutations.Add(GetPermutations(word));
+        }
+
+        HashSet<string> uniqueMorsePerms = new HashSet<string>();
+        List<string> wordsWithUniquePerms = new List<string>();
+
+        for (int i = 0; i < words.Length; i++)
+        {
+            bool hasUniquePerm = true;
+            foreach (string perm in allPermutations[i])
+            {
+                string morse = PermToMorse(perm);
+                if (uniqueMorsePerms.Contains(morse))
+                {
+                    hasUniquePerm = false;
+                    break;
+                }
+            }
+            if (hasUniquePerm)
+            {
+                wordsWithUniquePerms.Add(words[i]);
+                foreach (string perm in allPermutations[i])
+                {
+                    uniqueMorsePerms.Add(PermToMorse(perm));
+                }
+            }
+        }
+
+        Console.WriteLine("Количество слов с уникальными перестановками в азбуке Морзе: " + wordsWithUniquePerms.Count);
+    }
+} 
