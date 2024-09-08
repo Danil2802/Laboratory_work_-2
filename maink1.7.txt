@@ -1,0 +1,69 @@
+// Функция для получения следующей буквы алфавита
+function nextChar(c) {
+    if (c === 'z') return 'a'; // Если это 'z', то следующая буква будет 'a'
+    if (c === 'Z') return 'A'; // То же самое для заглавной 'Z'
+    return String.fromCharCode(c.charCodeAt(0) + 1); // Для всех остальных букв просто увеличиваем код символа на 1
+}
+
+// Функция для добавления символов в строку, чтобы избежать трех одинаковых символов подряд
+function makeValidString(str) {
+    let result = '';
+    let count = 1;
+
+    for (let i = 0; i < str.length; i++) {
+        result += str[i];
+        if (i < str.length - 1 && str[i] === str[i + 1]) {
+            count++;
+            if (count === 3) {
+                result += nextChar(str[i]); // Добавляем следующую букву алфавита
+                count = 1; // Сбрасываем счетчик
+            }
+        } else {
+            count = 1; // Сбрасываем счетчик, если текущий и следующий символы различны
+        }
+    }
+    return result;
+}
+
+// Функция для подсчета минимального количества добавлений
+function minAdditions(str) {
+    let additions = 0;
+    let count = 1;
+
+    for (let i = 1; i < str.length; i++) {
+        if (str[i] === str[i - 1]) {
+            count++;
+            if (count === 3) {
+                additions++;
+                count = 1;
+            }
+        } else {
+            count = 1;
+        }
+    }
+    return additions;
+}
+
+// Основная часть программы
+const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+readline.question('Введите строку: ', inputStr => {
+    for (let i = 0; i < inputStr.length; i++) {
+        if (!/[a-zA-Z]/.test(inputStr[i])) {
+            console.log('Недопустимые символы');
+            readline.close();
+            return;
+        }
+    }
+
+    let additions = minAdditions(inputStr);
+    let validStr = makeValidString(inputStr);
+
+    console.log('Минимальное количество добавлений: ' + additions);
+    console.log('Измененная строка: ' + validStr);
+
+    readline.close();
+});
