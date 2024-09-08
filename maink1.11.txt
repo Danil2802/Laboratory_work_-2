@@ -1,0 +1,86 @@
+using System;
+using System.Text;
+
+class Program
+{
+    // Функция для получения следующей буквы алфавита
+    static char NextChar(char c)
+    {
+        if (c == 'z') return 'a'; // Если это 'z', то следующая буква будет 'a'
+        if (c == 'Z') return 'A'; // То же самое для заглавной 'Z'
+        return (char)(c + 1); // Для всех остальных букв просто увеличиваем код символа на 1
+    }
+
+    // Функция для добавления символов в строку, чтобы избежать трех одинаковых символов подряд
+    static string MakeValidString(string str)
+    {
+        StringBuilder result = new StringBuilder();
+        int count = 1;
+
+        for (int i = 0; i < str.Length; i++)
+        {
+            result.Append(str[i]);
+            if (i < str.Length - 1 && str[i] == str[i + 1])
+            {
+                count++;
+                if (count == 3)
+                {
+                    result.Append(NextChar(str[i])); // Добавляем следующую букву алфавита
+                    count = 1; // Сбрасываем счетчик
+                }
+            }
+            else
+            {
+                count = 1; // Сбрасываем счетчик, если текущий и следующий символы различны
+            }
+        }
+        return result.ToString();
+    }
+
+    // Функция для подсчета минимального количества добавлений
+    static int MinAdditions(string str)
+    {
+        int additions = 0;
+        int count = 1;
+
+        for (int i = 1; i < str.Length; i++)
+        {
+            if (str[i] == str[i - 1])
+            {
+                count++;
+                if (count == 3)
+                {
+                    additions++;
+                    count = 1;
+                }
+            }
+            else
+            {
+                count = 1;
+            }
+        }
+        return additions;
+    }
+
+    static void Main(string[] args)
+    {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.WriteLine("Введите строку: ");
+        string inputStr = Console.ReadLine();
+
+        foreach (char c in inputStr)
+        {
+            if (!Char.IsLetter(c))
+            {
+                Console.WriteLine("Недопустимые символы");
+                return;
+            }
+        }
+
+        int additions = MinAdditions(inputStr);
+        string validStr = MakeValidString(inputStr);
+
+        Console.WriteLine("Минимальное количество добавлений: " + additions);
+        Console.WriteLine("Измененная строка: " + validStr);
+    }
+}
