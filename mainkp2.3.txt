@@ -1,0 +1,100 @@
+use std::collections::{HashMap, HashSet};
+use std::io::{self, Write};
+
+fn char_to_morse(c: char) -> &'static str {
+    let morse_map: HashMap<char, &str> = [
+        ('A', ".-"), ('B', "-..."), ('C', "-.-."), ('D', "-.."), ('E', "."),
+        ('F', "..-."), ('G', "--."), ('H', "...."), ('I', ".."), ('J', ".---"),
+        ('K', "-.-"), ('L', ".-.."), ('M', "--"), ('N', "-."), ('O', "---"),
+        ('P', ".--."), ('Q', "--.-"), ('R', ".-."), ('S', "..."), ('T', "-"),
+        ('U', "..-"), ('V', "...-"), ('W', ".--"), ('X', "-..-"), ('Y', "-.--"),
+        ('Z', "--..")
+    ].iter().cloned().collect();
+    morse_map.get(&c.to_ascii_uppercase()).cloned().unwrap_or("")
+}
+
+fn perm_to_morse(perm: &str) -> String {
+    perm.chars().map(char_to_morse).collect()
+}
+
+fn get_permutations(str: &str) -> Vec<String> {
+    let mut permutations = Vec::new();
+    let mut chars: Vec<char> = str.chars().collect();
+    chars.sort_unstable();
+    generate_permutations(&mut chars, 0, &mut permutations);
+    permutations
+}
+
+fn generate_permutations(chars: &mut Vec<char>, index: usize, permutations: &mut Vec<String>) {
+    if index == chars.len() - 1 {
+        permutations.push(chars.iter().collect());
+        return;
+    }
+    let mut seen = HashSet::new();
+    for i in index..chars.len() {
+        if seen.contains(&chars[i]) {
+            continue;
+        }
+        seen.insert(chars[i]);
+        chars.swap(index, i);
+        generate_permutations(chars, index + 1, permutations);
+        chars.swap(index, i);
+    }
+}
+
+fn main() {
+    print!("Введите строку: ");
+    io::stdout().flush().expect("Ошибка при очистке буфера вывода");
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).expect("Ошибка при чтении строки");
+    let input = input.trim();
+
+    if input.is_empty() {
+        println!("Введена пустая строка");
+        return;
+    }
+
+    if input.chars().any(|c| !c.is_alphabetic() && !c.is_whitespace()) {
+        println!("Не балуетесь");
+        return;
+    }
+
+    let space_count = input.chars().filter(|&c| c == ' ').count();
+    if space_count >= 100 {
+        println!("Слишком много слов");
+        return;
+    }
+
+    let words: Vec<&str> = input.split_whitespace().collect();
+    let mut all_permutations = Vec::new();
+
+    for word in &words {
+        if word.len() >= 11 {
+            println!("Слишком длинное слово: {}", word);
+            return;
+        }
+        all_permutations.push(get_permutations(word));
+    }
+
+    let mut unique_morse_perms = HashSet::new();
+    let mut words_with_unique_perms = Vec::new();
+
+    for (i, word) in words.iter().enumerate() {
+        let mut has_unique_perm = true;
+        for perm in &all_permutations[i] {
+            let morse = perm_to_morse(perm);
+            if unique_morse_perms.contains(&morse) {
+                has_unique_perm = false;
+                break;
+            }
+        }
+        if has_unique_perm {
+            words_with_unique_perms.push(word);
+            for perm in &all_permutations[i] {
+                unique_morse_perms.insert(perm_to_morse(perm));
+            }
+        }
+    }
+
+    println!("Количество слов с уникальными перестановками в азбуке Морзе: {}", words_with_unique_perms.len());
+}
