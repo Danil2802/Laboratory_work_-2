@@ -1,0 +1,63 @@
+# Функция для получения следующей буквы алфавита
+def next_char(c)
+  if c == 'z'
+    'a'
+  elsif c == 'Z'
+    'A'
+  else
+    (c.ord + 1).chr
+  end
+end
+
+# Функция для добавления символов в строку, чтобы избежать трех одинаковых символов подряд
+def make_valid_string(str)
+  result = ""
+  count = 1
+
+  (0...str.length).each do |i|
+    result += str[i]
+    if i < str.length - 1 && str[i] == str[i + 1]
+      count += 1
+      if count == 3
+        result += next_char(str[i]) # Добавляем следующую букву алфавита
+        count = 1 # Сбрасываем счетчик
+      end
+    else
+      count = 1 # Сбрасываем счетчик, если текущий и следующий символы различны
+    end
+  end
+  result
+end
+
+# Функция для подсчета минимального количества добавлений
+def min_additions(str)
+  additions = 0
+  count = 1
+
+  (1...str.length).each do |i|
+    if str[i] == str[i - 1]
+      count += 1
+      if count == 3
+        additions += 1
+        count = 1
+      end
+    else
+      count = 1
+    end
+  end
+  additions
+end
+
+puts "Введите строку: "
+input_str = gets.chomp
+
+if input_str.match?(/\P{L}/)
+  puts "Недопустимые символы"
+  exit(1)
+end
+
+additions = min_additions(input_str)
+valid_str = make_valid_string(input_str)
+
+puts "Минимальное количество добавлений: #{additions}"
+puts "Измененная строка: #{valid_str}"
