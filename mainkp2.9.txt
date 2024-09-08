@@ -1,0 +1,121 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"sort"
+	"strings"
+	"unicode"
+)
+
+// Функция для преобразования символа в азбуку Морзе
+func charToMorse(c rune) string {
+	morseMap := map[rune]string{
+		'A': ".-", 'B': "-...", 'C': "-.-.", 'D': "-..", 'E': ".",
+		'F': "..-.", 'G': "--.", 'H': "....", 'I': "..", 'J': ".---",
+		'K': "-.-", 'L': ".-..", 'M': "--", 'N': "-.", 'O': "---",
+		'P': ".--.", 'Q': "--.-", 'R': ".-.", 'S': "...", 'T': "-",
+		'U': "..-", 'V': "...-", 'W': ".--", 'X': "-..-", 'Y': "-.--",
+		'Z': "--..",
+	}
+
+	c = unicode.ToUpper(c) // Переводим символ в верхний регистр
+	if morse, ok := morseMap[c]; ok {
+		return morse
+	}
+	return "" // Возвращаем пустую строку для неизвестных символов
+}
+
+// Функция для преобразования перестановки в азбуку Морзе
+func permToMorse(perm string) string {
+	var morsePerm string
+	for _, c := range perm {
+		morsePerm += charToMorse(c)
+	}
+	return morsePerm
+}
+
+// Функция для получения всех перестановок символов в строке
+func getPermutations(str string) []string {
+	var permutations []string
+	sortedStr := strings.Split(str, "")
+	sort.Strings(sortedStr)
+	permute(sortedStr, func(perm []string) {
+		permutations = append(permutations, strings.Join(perm, ""))
+	})
+	return permutations
+}
+
+// Вспомогательная функция для генерации перестановок
+func permute(arr []string, callback func([]string)) {
+	var permuteInner func(int)
+	permuteInner = func(start int) {
+		if start == len(arr)-1 {
+			callback(arr)
+			return
+		}
+		for i := start; i < len(arr); i++ {
+			arr[start], arr[i] = arr[i], arr[start]
+			permuteInner(start + 1)
+			arr[start], arr[i] = arr[i], arr[start]
+		}
+	}
+	permuteInner(0)
+}
+
+func main() {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Введите строку: ")
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+
+	for _, c := range input {
+		if !unicode.IsLetter(c) && !unicode.IsSpace(c) {
+			fmt.Println("Не балуетесь")
+			return
+		}
+	}
+
+	spaceCount := strings.Count(input, " ")
+	if spaceCount >= 100 {
+		fmt.Println("Слишком много слов")
+		return
+	}
+
+	words := strings.Fields(input)
+	var allPermutations [][]string
+
+	// Разделение строки на слова и получение перестановок для каждого слова
+	for _, word := range words {
+		if len(word) > 11 {
+			fmt.Println("Слишком длинное слово:", word)
+			return
+		}
+		allPermutations = append(allPermutations, getPermutations(word))
+	}
+
+	// Отслеживание слов с уникальными перестановками в азбуке Морзе
+	uniqueMorsePerms := make(map[string]struct{})
+	var wordsWithUniquePerms []string
+
+	for i, word := range words {
+		hasUniquePerm := true
+		for _, perm := range allPermutations[i] {
+			morse := permToMorse(perm)
+			if _, exists := uniqueMorsePerms[morse]; exists {
+				hasUniquePerm = false
+				break
+			}
+		}
+		if hasUniquePerm {
+			wordsWithUniquePerms = append(wordsWithUniquePerms, word)
+			for _, perm := range allPermutations[i] {
+				uniqueMorsePerms[permToMorse(perm)] = struct{}{}
+			}
+		}
+	}
+
+	// Вывод количества слов с уникальными перестановками и одного из таких слов
+	fmt.Printf("Количество слов с уникальными перестановками в азбуке Морзе: %d\n", len(wordsWithUniquePerms))
+}
