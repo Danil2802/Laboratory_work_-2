@@ -1,0 +1,76 @@
+# Функция для преобразования символа в азбуку Морзе
+def char_to_morse(c)
+  morse_map = {
+    'A' => ".-", 'B' => "-...", 'C' => "-.-.", 'D' => "-..", 'E' => ".",
+    'F' => "..-.", 'G' => "--.", 'H' => "....", 'I' => "..", 'J' => ".---",
+    'K' => "-.-", 'L' => ".-..", 'M' => "--", 'N' => "-.", 'O' => "---",
+    'P' => ".--.", 'Q' => "--.-", 'R' => ".-.", 'S' => "...", 'T' => "-",
+    'U' => "..-", 'V' => "...-", 'W' => ".--", 'X' => "-..-", 'Y' => "-.--",
+    'Z' => "--.."
+  }
+
+  c = c.upcase # Переводим символ в верхний регистр
+  morse_map[c] || "" # Возвращаем соответствующий символ в Морзе или пустую строку для неизвестных символов
+end
+
+# Функция для преобразования перестановки в азбуку Морзе
+def perm_to_morse(perm)
+  morse_perm = ""
+  perm.each_char { |c| morse_perm += char_to_morse(c) }
+  morse_perm
+end
+
+# Функция для получения всех перестановок символов в строке
+def get_permutations(str)
+  str.chars.permutation.map(&:join).uniq
+end
+
+# Основная программа
+puts "Введите строку: "
+input = gets.chomp # Ввод строки
+
+if input.each_char.any? { |c| !c.match(/[[:alpha:]]| /) }
+  puts "Не балуетесь"
+  exit
+end
+
+if input.count(' ') >= 100
+  puts "Слишком много слов"
+  exit
+end
+
+words = input.split
+all_permutations = []
+
+# Разделение строки на слова и получение перестановок для каждого слова
+words.each do |word|
+  if word.length > 11
+    puts "Слишком длинное слово: #{word}"
+    exit
+  end
+  all_permutations << get_permutations(word)
+end
+
+# Отслеживание слов с уникальными перестановками в азбуке Морзе
+unique_morse_perms = {}
+words_with_unique_perms = []
+
+words.each_with_index do |word, i|
+  has_unique_perm = true
+  all_permutations[i].each do |perm|
+    morse = perm_to_morse(perm)
+    if unique_morse_perms.key?(morse)
+      has_unique_perm = false
+      break
+    end
+  end
+  if has_unique_perm
+    words_with_unique_perms << word
+    all_permutations[i].each do |perm|
+      unique_morse_perms[perm_to_morse(perm)] = true
+    end
+  end
+end
+
+# Вывод количества слов с уникальными перестановками и одного из таких слов
+puts "Количество слов с уникальными перестановками в азбуке Морзе: #{words_with_unique_perms.size}"
