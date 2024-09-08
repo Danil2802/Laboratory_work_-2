@@ -1,0 +1,121 @@
+import Foundation
+
+// Функция для преобразования символа в азбуку Морзе
+func charToMorse(_ c: Character) -> String {
+    let morseMap: [Character: String] = [
+        "A": ".-", "B": "-...", "C": "-.-.", "D": "-..", "E": ".",
+        "F": "..-.", "G": "--.", "H": "....", "I": "..", "J": ".---",
+        "K": "-.-", "L": ".-..", "M": "--", "N": "-.", "O": "---",
+        "P": ".--.", "Q": "--.-", "R": ".-.", "S": "...", "T": "-",
+        "U": "..-", "V": "...-", "W": ".--", "X": "-..-", "Y": "-.--",
+        "Z": "--.."
+    ]
+    
+    let upperC = Character(c.uppercased())
+    return morseMap[upperC] ?? ""
+}
+
+// Функция для преобразования перестановки в азбуку Морзе
+func permToMorse(_ perm: String) -> String {
+    var morsePerm = ""
+    for char in perm {
+        morsePerm += charToMorse(char)
+    }
+    return morsePerm
+}
+
+// Функция для получения всех перестановок символов в строке
+func getPermutations(_ str: String) -> [String] {
+    var permutations: [String] = []
+    var sortedStr = Array(str.sorted())
+    
+    repeat {
+        permutations.append(String(sortedStr))
+    } while nextPermutation(&sortedStr)
+    
+    return permutations
+}
+
+// Функция для получения следующей перестановки
+func nextPermutation(_ str: inout [Character]) -> Bool {
+    if str.isEmpty { return false }
+    
+    var i = str.count - 2
+    while i >= 0 && str[i] >= str[i + 1] {
+        i -= 1
+    }
+    
+    if i < 0 {
+        return false
+    }
+    
+    var j = str.count - 1
+    while str[j] <= str[i] {
+        j -= 1
+    }
+    
+    str.swapAt(i, j)
+    str = Array(str.prefix(i + 1) + str.suffix(from: i + 1).reversed())
+    
+    return true
+}
+
+func main() {
+    print("Введите строку:")
+    guard let input = readLine(), !input.isEmpty else {
+        print("Не балуетесь")
+        return
+    }
+    
+    for c in input {
+        if !c.isLetter && c != " " {
+            print("Не балуетесь")
+            return
+        }
+    }
+    
+    let spaceCount = input.filter { $0 == " " }.count
+    if spaceCount >= 100 {
+        print("Слишком много слов")
+        return
+    }
+    
+    let words = input.split(separator: " ").map(String.init)
+    var allPermutations: [[String]] = []
+    
+    // Разделение строки на слова и получение перестановок для каждого слова
+    for word in words {
+        if word.count > 11 {
+            print("Слишком длинное слово: \(word)")
+            return
+        }
+        allPermutations.append(getPermutations(word))
+    }
+    
+    var uniqueMorsePerms: Set<String> = []
+    var wordsWithUniquePerms: [String] = []
+    
+    // Отслеживание слов с уникальными перестановками в азбуке Морзе
+    for i in 0..<words.count {
+        var hasUniquePerm = true
+        for perm in allPermutations[i] {
+            let morse = permToMorse(perm)
+            if uniqueMorsePerms.contains(morse) {
+                hasUniquePerm = false
+                break
+            }
+        }
+        if hasUniquePerm {
+            wordsWithUniquePerms.append(words[i])
+            for perm in allPermutations[i] {
+                uniqueMorsePerms.insert(permToMorse(perm))
+            }
+        }
+    }
+    
+    // Вывод количества слов с уникальными перестановками и одного из таких слов
+    print("Количество слов с уникальными перестановками в азбуке Морзе: \(wordsWithUniquePerms.count)")
+}
+
+// Вызов основной функции
+main()
