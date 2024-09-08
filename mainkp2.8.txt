@@ -1,0 +1,115 @@
+import java.util.*;
+
+public class Main {
+    private static final Map<Character, String> morseMap = new HashMap<Character, String>() {{
+        put('A', ".-"); put('B', "-..."); put('C', "-.-."); put('D', "-.."); put('E', ".");
+        put('F', "..-."); put('G', "--."); put('H', "...."); put('I', ".."); put('J', ".---");
+        put('K', "-.-"); put('L', ".-.."); put('M', "--"); put('N', "-."); put('O', "---");
+        put('P', ".--."); put('Q', "--.-"); put('R', ".-."); put('S', "..."); put('T', "-");
+        put('U', "..-"); put('V', "...-"); put('W', ".--"); put('X', "-..-"); put('Y', "-.--");
+        put('Z', "--..");
+    }};
+
+    private static String charToMorse(char c) {
+        return morseMap.getOrDefault(Character.toUpperCase(c), "");
+    }
+
+    private static String permToMorse(String perm) {
+        StringBuilder morsePerm = new StringBuilder();
+        for (char c : perm.toCharArray()) {
+            morsePerm.append(charToMorse(c));
+        }
+        return morsePerm.toString();
+    }
+
+    private static List<String> getPermutations(String str) {
+        List<String> permutations = new ArrayList<>();
+        char[] chars = str.toCharArray();
+        Arrays.sort(chars);
+        permutations.add(new String(chars));
+        while (nextPermutation(chars)) {
+            permutations.add(new String(chars));
+        }
+        return permutations;
+    }
+
+    private static boolean nextPermutation(char[] array) {
+        int n = array.length;
+        int k = n - 2;
+        while (k >= 0 && array[k] >= array[k + 1]) {
+            k--;
+        }
+        if (k < 0) {
+            return false;
+        }
+        int l = n - 1;
+        while (l > k && array[k] >= array[l]) {
+            l--;
+        }
+        swap(array, k, l);
+        reverse(array, k + 1, n - 1);
+        return true;
+    }
+
+    private static void swap(char[] array, int i, int j) {
+        char temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+
+    private static void reverse(char[] array, int i, int j) {
+        while (i < j) {
+            swap(array, i++, j--);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Введите строку: ");
+        String input = scanner.nextLine();
+
+        for (char c : input.toCharArray()) {
+            if (!Character.isLetter(c) && !Character.isWhitespace(c)) {
+                System.out.println("Не балуетесь");
+                return;
+            }
+        }
+long spaceCount = input.chars().filter(ch -> ch == ' ').count();
+    if (spaceCount >= 100) {
+        System.out.println("Слишком много слов");
+        return;
+    }
+        String[] words = input.split(" ");
+        List<List<String>> allPermutations = new ArrayList<>();
+
+        for (String word : words) {
+            if (word.length() > 11) {
+                System.out.println("Слишком длинное слово: " + word);
+                return;
+            }
+            allPermutations.add(getPermutations(word));
+        }
+
+        Set<String> uniqueMorsePerms = new HashSet<>();
+        List<String> wordsWithUniquePerms = new ArrayList<>();
+
+        for (int i = 0; i < words.length; i++) {
+            boolean hasUniquePerm = true;
+            for (String perm : allPermutations.get(i)) {
+                String morse = permToMorse(perm);
+                if (uniqueMorsePerms.contains(morse)) {
+                    hasUniquePerm = false;
+                    break;
+                }
+            }
+            if (hasUniquePerm) {
+                wordsWithUniquePerms.add(words[i]);
+                for (String perm : allPermutations.get(i)) {
+                    uniqueMorsePerms.add(permToMorse(perm));
+                }
+            }
+        }
+
+        System.out.println("Количество слов с уникальными перестановками в азбуке Морзе: " + wordsWithUniquePerms.size());
+    }
+}
