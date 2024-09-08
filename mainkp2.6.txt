@@ -1,0 +1,94 @@
+import java.util.*
+
+fun charToMorse(c: Char): String {
+    val morseMap = mapOf(
+        'A' to ".-", 'B' to "-...", 'C' to "-.-.", 'D' to "-..", 'E' to ".",
+        'F' to "..-.", 'G' to "--.", 'H' to "....", 'I' to "..", 'J' to ".---",
+        'K' to "-.-", 'L' to ".-..", 'M' to "--", 'N' to "-.", 'O' to "---",
+        'P' to ".--.", 'Q' to "--.-", 'R' to ".-.", 'S' to "...", 'T' to "-",
+        'U' to "..-", 'V' to "...-", 'W' to ".--", 'X' to "-..-", 'Y' to "-.--",
+        'Z' to "--.."
+    )
+    return morseMap[c.uppercaseChar()] ?: ""
+}
+
+fun permToMorse(perm: String): String {
+    return perm.map { charToMorse(it) }.joinToString("")
+}
+
+fun getPermutations(str: String): List<String> {
+    val permutations = mutableListOf<String>()
+    val chars = str.toCharArray()
+    generatePermutations(chars, 0, permutations)
+    return permutations
+}
+
+fun generatePermutations(chars: CharArray, index: Int, permutations: MutableList<String>) {
+    if (index == chars.size - 1) {
+        permutations.add(String(chars))
+        return
+    }
+    val seen = mutableSetOf<Char>()
+    for (i in index until chars.size) {
+        if (seen.contains(chars[i])) continue
+        seen.add(chars[i])
+        swap(chars, index, i)
+        generatePermutations(chars, index + 1, permutations)
+        swap(chars, index, i)
+    }
+}
+
+fun swap(chars: CharArray, i: Int, j: Int) {
+    val temp = chars[i]
+    chars[i] = chars[j]
+    chars[j] = temp
+}
+
+fun main() {
+    print("Введите строку: ")
+    val input = readLine() ?: ""
+
+    if (input.any { !it.isLetter() && !it.isWhitespace() }) {
+        println("Не балуетесь")
+        return
+    }
+
+    val spaceCount = input.count { it == ' ' }
+    if (spaceCount >= 100) {
+        println("Слишком много слов")
+        return
+    }
+
+    val words = input.split(" ").filter { it.isNotEmpty() }
+    val allPermutations = mutableListOf<List<String>>()
+
+    for (word in words) {
+        if (word.length >= 11) {
+            println("Слишком длинное слово: $word")
+            return
+        }
+        allPermutations.add(getPermutations(word))
+    }
+
+    val uniqueMorsePerms = mutableSetOf<String>()
+    val wordsWithUniquePerms = mutableListOf<String>()
+
+    for ((i, word) in words.withIndex()) {
+        var hasUniquePerm = true
+        for (perm in allPermutations[i]) {
+            val morse = permToMorse(perm)
+            if (uniqueMorsePerms.contains(morse)) {
+                hasUniquePerm = false
+                break
+            }
+        }
+        if (hasUniquePerm) {
+            wordsWithUniquePerms.add(word)
+            for (perm in allPermutations[i]) {
+                uniqueMorsePerms.add(permToMorse(perm))
+            }
+        }
+    }
+
+    println("Количество слов с уникальными перестановками в азбуке Морзе: ${wordsWithUniquePerms.size}")
+}
