@@ -1,0 +1,65 @@
+use std::io::{self, Write};
+
+fn is_ascending(num: i32) -> bool {
+    if num / 10 < 1 {
+        return false;
+    }
+    let mut last_digit = 10;
+    let mut n = num;
+    while n > 0 {
+        let digit = n % 10;
+        if digit >= last_digit {
+            return false;
+        }
+        last_digit = digit;
+        n /= 10;
+    }
+    true
+}
+
+fn reverse_number(num: i32) -> i32 {
+    let mut reversed = 0;
+    let mut n = num;
+    while n > 0 {
+        reversed = reversed * 10 + n % 10;
+        n /= 10;
+    }
+    reversed
+}
+
+fn main() {
+    print!("Введите количество чисел: ");
+    io::stdout().flush().unwrap();
+
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).unwrap();
+    let n: i32 = match input.trim().parse() {
+        Ok(num) => num,
+        Err(_) => {
+            println!("Ошибка: введено некорректное значение.");
+            return;
+        }
+    };
+
+    if n <= 0 {
+        println!("Ошибка: введено некорректное значение.");
+        return;
+    }
+
+    for _ in 0..n {
+        input.clear();
+        io::stdin().read_line(&mut input).unwrap();
+        let num: i32 = match input.trim().parse() {
+            Ok(num) => num,
+            Err(_) => {
+                println!("Ошибка: введено некорректное значение.");
+                return;
+            }
+        };
+
+        if is_ascending(num) {
+            print!("{} ", reverse_number(num));
+        }
+    }
+    println!();
+}
