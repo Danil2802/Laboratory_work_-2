@@ -1,0 +1,62 @@
+import java.util.Scanner;
+
+public class Main {
+    // Функция для проверки, является ли число числом, цифры которого идут по возрастанию
+    static boolean isAscending(int num) {
+        if (num / 10 < 1) {
+            return false;
+        } else {
+            int lastDigit = 10; // Начинаем с невозможной цифры
+            while (num > 0) {
+                int digit = num % 10;
+                if (digit >= lastDigit) {
+                    return false;
+                }
+                lastDigit = digit;
+                num /= 10;
+            }
+            return true;
+        }
+    }
+
+    // Функция для переворачивания числа
+    static int reverseNumber(int num) {
+        int reversed = 0;
+        while (num > 0) {
+            reversed = reversed * 10 + num % 10;
+            num /= 10;
+        }
+        return reversed;
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n;
+        int num;
+
+        // Считываем количество чисел
+        if (!scanner.hasNextInt()) {
+            System.out.println("Ошибка: введено некорректное значение.");
+            return;
+        }
+        n = scanner.nextInt();
+        if (n <= 0) {
+            System.out.println("Ошибка: введено некорректное значение.");
+            return;
+        }
+
+        // Считываем и обрабатываем числа по одному
+        for (int i = 0; i < n; ++i) {
+            if (!scanner.hasNextInt()) {
+                System.out.println("Ошибка: введено некорректное значение.");
+                return;
+            }
+            num = scanner.nextInt();
+
+            // Если число состоит из цифр, идущих по возрастанию, переворачиваем его
+            if (isAscending(num)) {
+                System.out.print(reverseNumber(num) + " ");
+            }
+        }
+    }
+}
