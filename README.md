@@ -1,1 +1,0 @@
-# Laboratory_work_-2
