@@ -1,0 +1,49 @@
+import Foundation
+
+func isAscending(_ num: Int) -> Bool {
+    if num / 10 < 1 {
+        return false
+    }
+    var lastDigit = 10
+    var n = num
+    while n > 0 {
+        let digit = n % 10
+        if digit >= lastDigit {
+            return false
+        }
+        lastDigit = digit
+        n /= 10
+    }
+    return true
+}
+
+func reverseNumber(_ num: Int) -> Int {
+    var reversed = 0
+    var n = num
+    while n > 0 {
+        reversed = reversed * 10 + n % 10
+        n /= 10
+    }
+    return reversed
+}
+
+print("Enter the number of integers: ", terminator: "")
+if let input = readLine(), let n = Int(input) {
+    if n <= 0 {
+        print("Invalid input.")
+        exit(0)
+    }
+
+    for _ in 0..<n {
+        if let numInput = readLine(), let num = Int(numInput) {
+            if isAscending(num) {
+                print(reverseNumber(num))
+            }
+        } else {
+            print("Invalid input.")
+            exit(0)
+        }
+    }
+} else {
+    print("Invalid input.")
+}
