@@ -1,0 +1,117 @@
+const readline = require('readline');
+
+const morseMap = {
+    'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.',
+    'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
+    'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---',
+    'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
+    'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--',
+    'Z': '--..'
+};
+
+function charToMorse(c) {
+    return morseMap[c.toUpperCase()] || '';
+}
+
+function permToMorse(perm) {
+    let morsePerm = '';
+    for (let c of perm) {
+        morsePerm += charToMorse(c);
+    }
+    return morsePerm;
+}
+
+function swap(arr, i, j) {
+    let temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+}
+
+function reverse(arr, start) {
+    let end = arr.length - 1;
+    while (start < end) {
+        swap(arr, start++, end--);
+    }
+}
+
+function getNextPermutation(arr) {
+    let i = arr.length - 2;
+    while (i >= 0 && arr[i] >= arr[i + 1]) {
+        i--;
+    }
+    if (i < 0) {
+        return false;
+    }
+    let j = arr.length - 1;
+    while (arr[j] <= arr[i]) {
+        j--;
+    }
+    swap(arr, i, j);
+    reverse(arr, i + 1);
+    return true;
+}
+
+function getPermutations(str) {
+    let arr = str.split('').sort();
+    let permutations = [arr.join('')];
+    while (getNextPermutation(arr)) {
+        permutations.push(arr.join(''));
+    }
+    return permutations;
+}
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+rl.question('Введите строку: ', input => {
+    for (let c of input) {
+        if (!/[a-zA-Z\s]/.test(c)) {
+            console.log('Не балуетесь');
+            rl.close();
+            return;
+        }
+    }
+let spaceCount = (input.match(/\s/g) || []).length;
+    if (spaceCount >= 100) {
+        console.log('Слишком много слов');
+        rl.close();
+        return;
+    }
+
+    let words = input.split(' ');
+    let allPermutations = [];
+
+    for (let word of words) {
+        if (word.length > 11) {
+            console.log('Слишком длинное слово: ' + word);
+            rl.close();
+            return;
+        }
+        allPermutations.push(getPermutations(word));
+    }
+
+    let uniqueMorsePerms = new Set();
+    let wordsWithUniquePerms = [];
+
+    for (let i = 0; i < words.length; i++) {
+        let hasUniquePerm = true;
+        for (let perm of allPermutations[i]) {
+            let morse = permToMorse(perm);
+            if (uniqueMorsePerms.has(morse)) {
+                hasUniquePerm = false;
+                break;
+            }
+        }
+        if (hasUniquePerm) {
+            wordsWithUniquePerms.push(words[i]);
+            for (let perm of allPermutations[i]) {
+                uniqueMorsePerms.add(permToMorse(perm));
+            }
+        }
+    }
+
+    console.log('Количество слов с уникальными перестановками в азбуке Морзе: ' + wordsWithUniquePerms.length);
+    rl.close();
+});
