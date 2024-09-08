@@ -1,0 +1,34 @@
+import Data.Char (ord, chr, isAlpha)
+
+-- Функция для получения следующей буквы алфавита
+nextChar :: Char -> Char
+nextChar c
+    | c == 'z' = 'a' -- Если это 'z', то следующая буква будет 'a'
+    | c == 'Z' = 'A' -- То же самое для заглавной 'Z'
+    | otherwise = chr (ord c + 1) -- Для всех остальных букв просто увеличиваем код символа на 1
+
+-- Функция для добавления символов в строку, чтобы избежать трех одинаковых символов подряд
+makeValidString :: String -> (Int, String)
+makeValidString str = go str 1 "" 0
+    where
+        go [] _ result additions = (additions, result)
+        go (x:xs) count result additions
+            | null xs = (additions, result ++ [x])
+            | x == head xs && count == 2 = go xs 1 (result ++ [x, nextChar x]) (additions + 1)
+            | x == head xs = go xs (count + 1) (result ++ [x]) additions
+            | otherwise = go xs 1 (result ++ [x]) additions
+
+main :: IO ()
+main = do
+    putStrLn "Введите строку: "
+    inputStr <- getLine
+
+    let validInput = all isAlpha inputStr
+    if not validInput
+        then putStrLn "Недопустимые символы"
+        else if null inputStr
+            then putStrLn "Введена пустая строка"
+            else do
+                let (additions, validStr) = makeValidString inputStr
+                putStrLn $ "Минимальное количество добавлений: " ++ show additions
+                putStrLn $ "Измененная строка: " ++ validStr
