@@ -1,0 +1,152 @@
+section .data
+inputStr db "ujojojiiiiiii", 0 ; Входная строка (можете заменить на другую строку)
+validStr db 200 dup(0) ; Буфер для изменённой строки
+msg1 db "Минимальное количество добавлений: ", 0
+invalidMsg db "Некорректные символы", 0
+numAdditions db 0 ; Количество добавлений
+newline db 10
+
+section .bss
+len resb 1 ; Длина введенной строки
+hasInvalidChar resb 1 ; Флаг наличия некорректного символа
+
+section .text
+global _start
+
+_start:
+; Подсчет длины строки
+mov rsi, inputStr
+xor rcx, rcx
+count_length:
+cmp byte [rsi + rcx], 0
+je length_done
+inc rcx
+jmp count_length
+length_done:
+mov [len], cl ; Используем cl, так как длина строки не будет превышать 255 символов
+
+; Обработка строки и подсчет минимальных добавлений
+mov rsi, inputStr
+mov rdi, validStr
+xor rbx, rbx                        ; count
+xor rdx, rdx                        ; additions
+xor r8, r8                          ; флаг наличия некорректного символа
+mov cl, [len]
+process_loop:
+lodsb
+; Проверка на некорректные символы
+cmp al, 'A'
+jl mark_invalid
+cmp al, 'Z'
+jle store_char
+cmp al, 'a'
+jl mark_invalid
+cmp al, 'z'
+jg mark_invalid
+
+store_char:
+stosb
+cmp al, [rsi] ; Сравниваем с текущим символом в inputStr
+jne reset_count
+inc rbx
+cmp rbx, 2
+jl next_process_char
+inc rdx
+call nextChar
+stosb
+xor rbx, rbx
+jmp next_process_char
+reset_count:
+xor rbx, rbx
+next_process_char:
+loop process_loop
+jmp check_invalid
+
+mark_invalid:
+mov byte [hasInvalidChar], 1 ; Устанавливаем флаг наличия некорректного символа
+jmp next_process_char
+
+check_invalid:
+; Проверка флага некорректных символов
+cmp byte [hasInvalidChar], 1
+je invalid_char
+
+; Сохранение количества добавлений
+mov [numAdditions], dl
+
+; Вывод минимального количества добавлений и изменённой строки
+mov rax, 1
+mov rdi, 1
+mov rsi, msg1
+mov rdx, 66
+syscall
+movzx rax, byte [numAdditions]
+call print_number
+call print_newline
+
+; Вывод изменённой строки
+mov rax, 1
+mov rdi, 1
+mov rsi, validStr
+mov rdx, 200                       ; Увеличиваем на 200, чтобы увидеть весь буфер
+syscall
+
+; Завершение программы
+mov rax, 60                        ; системный вызов sys_exit
+xor rdi, rdi
+syscall
+invalid_char:
+; Вывод сообщения о некорректных символах
+mov rax, 1
+mov rdi, 1
+mov rsi, invalidMsg
+mov rdx, 40
+syscall
+
+; Завершение программы
+mov rax, 60
+xor rdi, rdi
+syscall
+nextChar:
+cmp al, 'z'
+je char_a
+cmp al, 'Z'
+je char_A
+inc al
+ret
+char_a:
+mov al, 'a'
+ret
+char_A:
+mov al, 'A'
+ret
+
+print_number:
+mov rcx, 10
+xor rbx, rbx
+print_number_loop:
+xor rdx, rdx
+div rcx
+add dl, '0'
+push rdx
+inc rbx
+test rax, rax
+jnz print_number_loop
+print_number_out:
+mov rax, 1
+mov rdi, 1
+mov rsi, rsp
+mov rdx, rbx
+syscall
+pop rdx
+dec rbx
+jnz print_number_out
+ret
+
+print_newline:
+mov rax, 1
+mov rdi, 1
+mov rsi, newline
+mov rdx, 1
+syscall
+ret
