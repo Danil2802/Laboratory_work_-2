@@ -1,0 +1,58 @@
+fun isAscending(num: Int): Boolean {
+    if (num / 10 < 1) {
+        return false
+    }
+    var lastDigit = 10
+    var n = num
+    while (n > 0) {
+        val digit = n % 10
+        if (digit >= lastDigit) {
+            return false
+        }
+        lastDigit = digit
+        n /= 10
+    }
+    return true
+}
+
+fun reverseNumber(num: Int): Int {
+    var reversed = 0
+    var n = num
+    while (n > 0) {
+        reversed = reversed * 10 + n % 10
+        n /= 10
+    }
+    return reversed
+}
+
+fun main() {
+    print("Enter the number of integers: ")
+    val nInput = readLine()?.trim()
+    val n = try {
+        nInput?.toInt() ?: throw NumberFormatException("Invalid input.")
+    } catch (e: NumberFormatException) {
+        println("Error: ${e.message}")
+        return
+    }
+
+    if (n <= 0) {
+        println("Error: Invalid input.")
+        return
+    }
+
+    for (i in 0 until n) {
+        print("Enter number: ")
+        val numInput = readLine()?.trim()
+        val num = try {
+            numInput?.toInt() ?: throw NumberFormatException("Invalid input.")
+        } catch (e: NumberFormatException) {
+            println("Error: ${e.message}")
+            return
+        }
+
+        if (isAscending(num)) {
+            print("${reverseNumber(num)} ")
+        }
+    }
+    println()
+}
