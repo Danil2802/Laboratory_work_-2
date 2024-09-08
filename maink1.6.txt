@@ -1,0 +1,60 @@
+fun nextChar(c: Char): Char {
+    return when (c) {
+        'z' -> 'a'
+        'Z' -> 'A'
+        else -> c + 1
+    }
+}
+
+fun makeValidString(str: String): String {
+    val result = StringBuilder()
+    var count = 1
+
+    for (i in str.indices) {
+        result.append(str[i])
+        if (i < str.length - 1 && str[i] == str[i + 1]) {
+            count++
+            if (count == 3) {
+                result.append(nextChar(str[i])) // Добавляем следующую букву алфавита
+                count = 1 // Сбрасываем счетчик
+            }
+        } else {
+            count = 1 // Сбрасываем счетчик, если текущий и следующий символы различны
+        }
+    }
+    return result.toString()
+}
+
+fun minAdditions(str: String): Int {
+    var additions = 0
+    var count = 1
+
+    for (i in 1 until str.length) {
+        if (str[i] == str[i - 1]) {
+            count++
+            if (count == 3) {
+                additions++
+                count = 1
+            }
+        } else {
+            count = 1
+        }
+    }
+    return additions
+}
+
+fun main() {
+    print("Введите строку: ")
+    val inputStr = readLine() ?: ""
+
+    if (!inputStr.all { it.isLetter() }) {
+        println("Недопустимые символы")
+        return
+    }
+
+    val additions = minAdditions(inputStr)
+    val validStr = makeValidString(inputStr)
+
+    println("Минимальное количество добавлений: $additions")
+    println("Измененная строка: $validStr")
+}
