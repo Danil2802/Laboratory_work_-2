@@ -1,0 +1,67 @@
+from itertools import permutations
+
+# Функция для преобразования символа в азбуку Морзе
+def char_to_morse(c):
+    morse_map = {
+        'A': ".-", 'B': "-...", 'C': "-.-.", 'D': "-..", 'E': ".",
+        'F': "..-.", 'G': "--.", 'H': "....", 'I': "..", 'J': ".---",
+        'K': "-.-", 'L': ".-..", 'M': "--", 'N': "-.", 'O': "---",
+        'P': ".--.", 'Q': "--.-", 'R': ".-.", 'S': "...", 'T': "-",
+        'U': "..-", 'V': "...-", 'W': ".--", 'X': "-..-", 'Y': "-.--",
+        'Z': "--.."
+    }
+    return morse_map.get(c.upper(), "")  # Возвращаем пустую строку для неизвестных символов
+
+# Функция для преобразования перестановки в азбуку Морзе
+def perm_to_morse(perm):
+    return ''.join(char_to_morse(c) for c in perm)
+
+# Функция для получения всех перестановок символов в строке
+def get_permutations(s):
+    return [''.join(p) for p in permutations(s)]
+
+# Основная функция
+def main():
+    input_str = input("Введите строку: ")
+
+    for c in input_str:
+        if not c.isalpha() and not c.isspace():
+            print("Не балуетесь")
+            return
+
+    space_count = input_str.count(' ')
+    if space_count >= 100:
+        print("Слишком много слов")
+        return
+
+    words = input_str.split()
+
+    # Проверка длины каждого слова
+    for word in words:
+        if len(word) > 11:
+            print(f"Слишком длинное слово: {word}")
+            return
+
+    all_permutations = [get_permutations(word) for word in words]
+
+    # Отслеживание слов с уникальными перестановками в азбуке Морзе
+    unique_morse_perms = set()
+    words_with_unique_perms = []
+
+    for i, word in enumerate(words):
+        has_unique_perm = True
+        for perm in all_permutations[i]:
+            morse = perm_to_morse(perm)
+            if morse in unique_morse_perms:
+                has_unique_perm = False
+                break
+        if has_unique_perm:
+            words_with_unique_perms.append(word)
+            for perm in all_permutations[i]:
+                unique_morse_perms.add(perm_to_morse(perm))
+
+    # Вывод количества слов с уникальными перестановками и одного из таких слов
+    print(f"Количество слов с уникальными перестановками в азбуке Морзе: {len(words_with_unique_perms)}")
+
+if __name__ == "__main__":
+    main()
