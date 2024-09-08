@@ -1,0 +1,34 @@
+def is_ascending(num)
+    return false if num / 10 < 1
+    last_digit = 10
+    while num > 0
+        digit = num % 10
+        return false if digit >= last_digit
+        last_digit = digit
+        num /= 10
+    end
+    true
+end
+
+def reverse_number(num)
+    reversed = 0
+    while num > 0
+        reversed = reversed * 10 + num % 10
+        num /= 10
+    end
+    reversed
+end
+
+print "Enter the number of integers: "
+n = gets.to_i
+if n <= 0
+    puts "Invalid input."
+    exit
+end
+
+n.times do
+    num = gets.to_i
+    if is_ascending(num)
+        puts reverse_number(num)
+    end
+end
