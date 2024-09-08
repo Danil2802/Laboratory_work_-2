@@ -1,0 +1,66 @@
+import Foundation
+
+// Функция для получения следующей буквы алфавита
+func nextChar(_ c: Character) -> Character {
+    if c == "z" { return "a" } // Если это 'z', то следующая буква будет 'a'
+    if c == "Z" { return "A" } // То же самое для заглавной 'Z'
+    // Для всех остальных букв просто увеличиваем код символа на 1
+    return Character(UnicodeScalar(c.unicodeScalars.first!.value + 1)!)
+}
+
+// Функция для добавления символов в строку, чтобы избежать трех одинаковых символов подряд
+func makeValidString(_ str: String) -> String {
+    var result = ""
+    var count = 1
+    for i in str.indices {
+        result.append(str[i])
+        if i < str.index(str.endIndex, offsetBy: -1) && str[i] == str[str.index(after: i)] {
+            count += 1
+            if count == 3 {
+                result.append(nextChar(str[i])) // Добавляем следующую букву алфавита
+                count = 1 // Сбрасываем счетчик
+            }
+        }
+        else {
+            count = 1 // Сбрасываем счетчик, если текущий и следующий символы различны
+        }
+    }
+    return result
+}
+
+// Функция для подсчета минимального количества добавлений
+func minAdditions(_ str: String) -> Int {
+    var additions = 0
+    var count = 1
+    for i in str.indices {
+        if i < str.index(str.endIndex, offsetBy: -1) && str[i] == str[str.index(after: i)] {
+            count += 1
+            if count == 3 {
+                additions += 1
+                count = 1
+            }
+        }
+        else {
+            count = 1
+        }
+    }
+    return additions
+}
+
+print("Введите строку: ")
+guard let inputStr = readLine(), !inputStr.isEmpty else {
+    print("Введена пустая строка")
+    exit(1)
+}
+
+for c in inputStr {
+    if !c.isLetter {
+        print("Недопустимые символы")
+        exit(1)
+    }
+}
+
+let additions = minAdditions(inputStr)
+let validStr = makeValidString(inputStr)
+print("Минимальное количество добавлений: \(additions)")
+print("Измененная строка: \(validStr)")
