@@ -1,0 +1,70 @@
+using System;
+
+class Program
+{
+    // Функция для проверки, является ли число числом, цифры которого идут по возрастанию
+    static bool IsAscending(int num)
+    {
+        if (num / 10 < 1)
+        {
+            return false;
+        }
+        else
+        {
+            int lastDigit = 10; // Начинаем с невозможной цифры
+            while (num > 0)
+            {
+                int digit = num % 10;
+                if (digit >= lastDigit)
+                {
+                    return false;
+                }
+                lastDigit = digit;
+                num /= 10;
+            }
+            return true;
+        }
+    }
+
+    // Функция для переворачивания числа
+    static int ReverseNumber(int num)
+    {
+        int reversed = 0;
+        while (num > 0)
+        {
+            reversed = reversed * 10 + num % 10;
+            num /= 10;
+        }
+        return reversed;
+    }
+
+    static void Main()
+    {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        int n;
+        int num;
+
+        // Считываем количество чисел
+        if (!int.TryParse(Console.ReadLine(), out n) || n <= 0)
+        {
+            Console.WriteLine("Ошибка: введено некорректное значение.");
+            return;
+        }
+
+        // Считываем и обрабатываем числа по одному
+        for (int i = 0; i < n; ++i)
+        {
+            if (!int.TryParse(Console.ReadLine(), out num))
+            {
+                Console.WriteLine("Ошибка: введено некорректное значение.");
+                return;
+            }
+
+            // Если число состоит из цифр, идущих по возрастанию, переворачиваем его
+            if (IsAscending(num))
+            {
+                Console.Write(ReverseNumber(num) + " ");
+            }
+        }
+    }
+}
