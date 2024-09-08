@@ -1,0 +1,79 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"unicode"
+)
+
+// Функция для получения следующей буквы алфавита
+func nextChar(c rune) rune {
+	switch c {
+	case 'z':
+		return 'a'
+	case 'Z':
+		return 'A'
+	default:
+		return c + 1
+	}
+}
+
+// Функция для добавления символов в строку, чтобы избежать трех одинаковых символов подряд
+func makeValidString(s string) string {
+	result := ""
+	count := 1
+
+	for i := 0; i < len(s); i++ {
+		result += string(s[i])
+		if i < len(s)-1 && s[i] == s[i+1] {
+			count++
+			if count == 3 {
+				result += string(nextChar(rune(s[i]))) // Добавляем следующую букву алфавита
+				count = 1
+			}
+		} else {
+			count = 1
+		}
+	}
+	return result
+}
+
+// Функция для подсчета минимального количества добавлений
+func minAdditions(s string) int {
+	additions := 0
+	count := 1
+
+	for i := 1; i < len(s); i++ {
+		if s[i] == s[i-1] {
+			count++
+			if count == 3 {
+				additions++
+				count = 1
+			}
+		} else {
+			count = 1
+		}
+	}
+	return additions
+}
+
+func main() {
+	fmt.Print("Введите строку: ")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	inputStr := scanner.Text()
+
+	for _, c := range inputStr {
+		if !unicode.IsLetter(c) {
+			fmt.Println("Недопустимые символы")
+			return
+		}
+	}
+
+	additions := minAdditions(inputStr)
+	validStr := makeValidString(inputStr)
+
+	fmt.Println("Минимальное количество добавлений:", additions)
+	fmt.Println("Измененная строка:", validStr)
+}
