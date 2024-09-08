@@ -1,0 +1,43 @@
+def is_ascending(num):
+    if num // 10 < 1:
+        return False
+    last_digit = 10
+    while num > 0:
+        digit = num % 10
+        if digit >= last_digit:
+            return False
+        last_digit = digit
+        num //= 10
+    return True
+
+def reverse_number(num):
+    reversed_num = 0
+    while num > 0:
+        reversed_num = reversed_num * 10 + num % 10
+        num //= 10
+    return reversed_num
+
+def main():
+    while True:
+        try:
+            n = int(input("Введите количество чисел: "))
+            if n <= 0:
+                print("Ошибка: введено некорректное значение.")
+                continue
+            break
+        except ValueError:
+            print("Ошибка: введено некорректное значение. Пожалуйста, введите целое число.")
+
+    for _ in range(n):
+        while True:
+            try:
+                num = int(input())
+                break
+            except ValueError:
+                print("Ошибка: введено некорректное значение. Пожалуйста, введите целое число.")
+        
+        if is_ascending(num):
+            print(reverse_number(num), end=" ")
+
+if __name__ == "__main__":
+    main()
